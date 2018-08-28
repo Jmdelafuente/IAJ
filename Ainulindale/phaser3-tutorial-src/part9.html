@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8" />
     <title>Making your first Phaser 3 Game - Part 9</title>
-    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <script src="./phaser.min.js"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -21,7 +21,7 @@
         physics: {
             default: 'arcade',
             arcade: {
-                gravity: { y: 300 },
+                gravity: { y: 100 },
                 debug: false
             }
         },
@@ -47,13 +47,13 @@
         this.load.image('ground', 'assets/platform.png');
         this.load.image('star', 'assets/star.png');
         this.load.image('bomb', 'assets/bomb.png');
-        this.load.spritesheet('dude', 'assets/dude.png', { frameWidth: 32, frameHeight: 48 });
+        this.load.spritesheet('dude', 'assets/playerAmarillo.png', { frameWidth: 51, frameHeight: 48 });
     }
 
     function create ()
     {
-        this.add.image(400, 300, 'sky');
-
+        //this.add.image(400, 300, 'sky');
+		background = this.add.image(400, 300,'sky');
         platforms = this.physics.add.staticGroup();
 
         platforms.create(400, 568, 'ground').setScale(2).refreshBody();
@@ -64,26 +64,41 @@
 
         player = this.physics.add.sprite(100, 450, 'dude');
 
-        player.setBounce(0.2);
+        //player.setBounce(0.2);
         player.setCollideWorldBounds(true);
 
         this.anims.create({
             key: 'left',
-            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 3 }),
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
             repeat: -1
         });
 
         this.anims.create({
             key: 'turn',
-            frames: [ { key: 'dude', frame: 4 } ],
-            frameRate: 20
+            frames: [ { key: 'dude', frame: 5 } ],
+            //frames: this.anims.generateFrameNumbers('dude', { start: 4, end: 6 }),
+            frameRate: 10,
         });
 
         this.anims.create({
             key: 'right',
-            frames: this.anims.generateFrameNumbers('dude', { start: 5, end: 8 }),
-            frameRate: 10,
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
+            repeat: -1
+        });
+
+		this.anims.create({
+            key: 'up',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
             repeat: -1
         });
 
@@ -103,6 +118,7 @@
 
         scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 
+		player.body.allowGravity = false;
         this.physics.add.collider(player, platforms);
         this.physics.add.collider(stars, platforms);
 
@@ -111,6 +127,7 @@
 
     function update ()
     {
+		moverFondo();
         if (cursors.left.isDown)
         {
             player.setVelocityX(-160);
@@ -129,11 +146,7 @@
 
             player.anims.play('turn');
         }
-
-        if (cursors.up.isDown && player.body.touching.down)
-        {
-            player.setVelocityY(-330);
-        }
+		
     }
 
     function collectStar (player, star)
@@ -143,6 +156,13 @@
         score += 10;
         scoreText.setText('Score: ' + score);
     }
+    
+    function moverFondo(){
+		background.y +=2;
+		if(background.y >= 800){
+			background.y = -200;
+		}
+	}
 
 </script>
 
