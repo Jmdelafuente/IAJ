@@ -7,19 +7,20 @@ var config = {
     physics: {
         default: 'arcade',
         arcade: {
-            gravity: { y: 300 },
+          //  gravity: { y: 300 },
             debug: false
         }
     },
     scene: {
         preload: preload,
         create: create,
-        update: update,
-        render: render
+        update: update
     }
 };
 
 var game = new Phaser.Game(config);
+
+
 var player;
 var stars;
 var platforms;
@@ -43,34 +44,19 @@ function preload ()
 function create ()
 {
 console.log("iniciando create")
-//background = this.add.image(400, 300,'sky');
+background = this.add.image(400, 300,'sky');
 
 
-//this.add.image(400, 300, 'sky');
 
-    // platforms = this.physics.add.staticGroup();
-    //
-    // platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-    //
-    // platforms.create(500, 400, 'ground');
-    // platforms.create(50, 250, 'ground');
-    // platforms.create(750, 220, 'ground');
-    // barras = this.physics.add.sprite();
-    // barras.create(600,0,'ground');
-
-    player = this.physics.add.sprite(100, 450, 'dude');
-//player.setScale(0.1);
+    player = this.physics.add.sprite(300, 400, 'dude'); // aca arma el jugador.
 
 // Lo nuevo
-  barras = this.physics.add.sprite(600, 0, 'ground'); // Se agrega las barras
-  barras.body.setGravityY(-100);
+  barras = this.physics.add.image(600, 0, 'ground'); // Se agrega las barras
+  barras.body.setVelocityY(100); // Puede ser velocidad o aceleracion. Si es aceleracion, se hace cada vez mas veloz.
+    barras.body.setAccelerationY(10);
+player.setCollideWorldBounds(true); // Esto es para que frene si toca un borde
 
-
-
-
-
-    player.setBounce(0.2);
-    player.setCollideWorldBounds(true);
+    // lo que sigue crea las animaciones para cuando se mueve.
 
     this.anims.create({
         key: 'left',
@@ -108,77 +94,74 @@ console.log("iniciando create")
     });
 
 
-
+  //Define los cursores
     cursors = this.input.keyboard.createCursorKeys();
 
-    stars = this.physics.add.group({
-        key: 'star',
-        repeat: 11,
-        setXY: { x: 12, y: 0, stepX: 70 }
-    });
 
-    stars.children.iterate(function (child) {
-
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-
-    });
-
-    this.physics.add.collider(player, barras); // Colision
-    this.physics.add.collider(stars, barras); // Colision
+// Declara el callback cuando coliciona el player y la barra
     this.physics.add.collider(player, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
 
-    this.physics.add.overlap(player, stars, collectStar, null, this);
-
-
+// Comando util para debuguear
+  console.log(barras)
 
 
 }
 
 function update ()
 {
-   // if (gameOver)
-   // {
-   //     return;
-   // }
+// Para que la particula se mueva libremente
     if (cursors.left.isDown)
     {
         player.setVelocityX(-160);
 
         player.anims.play('left', true);
     }
-    else if (cursors.right.isDown)
+
+  else  if (cursors.right.isDown)
     {
         player.setVelocityX(160);
 
         player.anims.play('right', true);
     }
+    else {
+      player.setVelocityX(0);
+    }
+   if (cursors.up.isDown)
+    {
+
+        player.setVelocityY(-160);
+
+        player.anims.play('up', true);
+    }
+  else  if (cursors.down.isDown)
+    {
+        player.setVelocityY(160);
+
+        player.anims.play('down', true);
+    }
     else
     {
-        player.setVelocityX(0);
+          player.setVelocityY(0);
 
         player.anims.play('turn');
     }
-//	moverFondo();
+	moverFondo();
 
-
+  magiabarra();
 
 
 }
 
-function collectStar (player, star)
+function moverFondo()
 {
-    star.disableBody(true, true);
+background.y +=2;
+if(background.y >= 1445){
+	background.y = -845;
+  }
 }
-
-// function moverFondo()
-// {
-// background.y +=2;
-// if(background.y >= 1445){
-// 	background.y = -845;
-//   }
-// }
-function hitBarra (player, barras)
+function hitBarra (player, barras) // No se de donde saque esta funcion.
 {
+  console.log("hitbarra")
   this.physics.pause();
 
   player.setTint(0xff0000);
@@ -187,10 +170,16 @@ function hitBarra (player, barras)
 
   gameOver = true;
 }
+function magiabarra(){ // Es la misma barra una y otra vez.
+if (barras.y>700) {
+  barras.y=0;
+  barras.x = Phaser.Math.Between(0, 600);
+  var escala=Phaser.Math.Between(1, 5);
+barras.setScale(1/escala,1);
+    console.log(escala)
+    console.log(barras.x)
 
-function render () {
+}
 
-  //debug helper
-  game.debug.spriteInfo(barra,32,32);
 
 }
