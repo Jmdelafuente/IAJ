@@ -38,8 +38,11 @@
     var platforms;
     var cursors;
     var gameOver = false;
-
+	var radius = 50;
     var game = new Phaser.Game(config);
+    var angle = 0;
+	var originX=400;
+	var originY=500;
 	
 	function preload ()
     {
@@ -53,7 +56,7 @@
     function create ()
     {
 
-		//background = this.add.image(400, 300,'sky');
+		background = this.add.image(400, 300,'sky');
 
 
 		//this.add.image(400, 300, 'sky');
@@ -71,9 +74,9 @@
         player = this.physics.add.sprite(100, 450, 'dude');
 		//player.setScale(0.1);
 
- // Lo nuevo
-      barras = this.physics.add.sprite(600, 0, 'ground'); // Se agrega las barras
-      barras.body.setGravityY(-100);
+		// Lo nuevo
+		barras = this.physics.add.sprite(600, 0, 'ground'); // Se agrega las barras
+		barras.body.setGravityY(-100);
 
 
 
@@ -103,15 +106,13 @@
             repeat: -1
         });
 
-		
-
-		    this.anims.create({
+		this.anims.create({
             key: 'up',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
             frameRate: 15,
             repeat: -1
         });
-
+        
         this.anims.create({
             key: 'down',
             frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
@@ -139,24 +140,34 @@
         this.physics.add.collider(player, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
 
         this.physics.add.overlap(player, stars, collectStar, null, this);
-
+		//player.x = originX;
+		//player.y = originY;
+		player.x = (originX + Math.cos(Math.PI*0.01)*radius);
+		player.y = (originY + Math.sin(Math.PI*0.01)*radius);
+		player.body.allowGravity=false;
 	}
-	}
+	
     function update ()
     {
-       // if (gameOver)
-       // {
-       //     return;
-       // }
+		if (gameOver)
+		{
+            return;
+        }
         if (cursors.left.isDown)
         {
-            player.setVelocityX(-160);
-
+			//X := originX + cos(angle)*radius;
+			//Y := originY + sin(angle)*radius;
+			angle -= Math.PI*0.01
+            player.x = (originX + Math.cos(angle)*radius);
+			player.y = (originY + Math.sin(angle)*radius);
             player.anims.play('left', true);
         }
         else if (cursors.right.isDown)
         {
-            player.setVelocityX(160);
+			angle += Math.PI*0.01
+			player.x =(originX + Math.cos(angle)*radius);
+			player.y =(originY + Math.sin(angle)*radius);
+            //player.setVelocityX(160);
 
             player.anims.play('right', true);
         }
@@ -184,8 +195,8 @@
 	   }
 	 }
 	 
-  function hitBarra (player, barras)
-  {
+	function hitBarra (player, barras)
+	{
       this.physics.pause();
 
       player.setTint(0xff0000);
@@ -193,14 +204,14 @@
       player.anims.play('turn');
 
       gameOver = true;
-  }
+	}
 
-  function render () {
+	function render () {
 
       //debug helper
       game.debug.spriteInfo(barra,32,32);
 
-  }
+	}
 
 
 </script>
