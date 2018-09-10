@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Making your first Phaser 3 Game - Part 8</title>
+    <script src="./js/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.Auto,
+        width: 800,
+        height: 600,
+        backgroundColor: '#000000', //080808
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 300 },
+                debug: false
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update,
+            render: render
+        }
+    };
+
+﻿
+
+    var player;
+    var stars;
+    var platforms;
+    var cursors;
+    var gameOver = false;
+	var radius = 50;
+    var game = new Phaser.Game(config);
+    var angle = 0;
+	var originX=400;
+	var originY=500;
+	
+	function preload ()
+    {
+		this.load.image('block', 'assets/gris.png');
+       // this.load.image('sky', 'assets/fondo2.png');
+        this.load.image('ground', 'assets/platform.png');
+        this.load.image('star', 'assets/nota.png');
+        this.load.image('bomb', 'assets/bomb.png');
+        this.load.spritesheet('dude', 'assets/playerAmarillo.png', { frameWidth: 51, frameHeight: 48 });
+    }
+
+
+    function create ()
+    {
+		
+	//Empieza codigo de fondo	
+		//definir cantidad de figuras para el fondo
+		var blocks = this.add.group({ key: 'block', repeat: 107, setScale: { x: 0, y: 0 } });
+		
+		Phaser.Actions.GridAlign(blocks.getChildren(), {
+        width: 14,
+        cellWidth: 80,
+        cellHeight: 75,
+        x: 60,
+        y: 50
+		});
+
+		var _this = this;
+
+		var i = 0;
+		
+		//define el bucle y movimiento del fondo del fondo
+		blocks.children.iterate(function (child) {
+
+        _this.tweens.add({
+            targets: child,
+            scaleX: 0.55,
+            scaleY: 0.55,
+            angle: 225,
+           // opacity: 4,
+            _ease: 'Sine.easeInOut',
+            ease: 'Power2',
+            duration: 1000,
+            delay: i * 50,
+            repeat: -1,
+            yoyo: true,
+            hold: 1000,
+            repeatDelay: 750
+        });
+
+        i++;
+
+        if (i % 14 === 0)
+        {
+            i = 0;
+        }
+
+    });
+		
+	
+	//termina Codigo de fondo
+	
+	
+		
+		//background = this.add.image(400, 300,'sky');
+		
+		
+
+		
+
+        player = this.physics.add.sprite(100, 450, 'dude');
+		
+
+		// Lo nuevo
+		barras = this.physics.add.sprite(600, 0, 'ground'); // Se agrega las barras
+		barras.body.setGravityY(-100);
+
+
+
+
+
+        player.setBounce(0.2);
+        player.setCollideWorldBounds(true);
+
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
+            repeat: -1
+        });
+
+        this.anims.create({
+            key: 'turn',
+            frames: [ { key: 'dude', frame: 4 } ],
+            //frames: this.anims.generateFrameNumbers('dude', { start: 4, end: 6 }),
+            frameRate: 10,
+        });
+
+        this.anims.create({
+            key: 'right',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
+            repeat: -1
+        });
+
+		this.anims.create({
+            key: 'up',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
+            repeat: -1
+        });
+        
+        this.anims.create({
+            key: 'down',
+            frames: this.anims.generateFrameNumbers('dude', { start: 0, end: 4 }),
+            frameRate: 15,
+            repeat: -1
+        });
+
+
+        cursors = this.input.keyboard.createCursorKeys();
+
+        stars = this.physics.add.group({
+            key: 'star',
+            repeat: 11,
+            setXY: { x: 12, y: 0, stepX: 70 }
+        });
+
+        stars.children.iterate(function (child) {
+
+            child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+
+        });
+
+        this.physics.add.collider(player, barras); // Colision
+        this.physics.add.collider(stars, barras); // Colision
+        this.physics.add.collider(player, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
+		this.physics.add.overlap(player, stars, collectStar, null, this);
+		
+				
+		//player.x = originX;
+		//player.y = originY;
+		player.x = (originX + Math.cos(Math.PI*0.01)*radius);
+		player.y = (originY + Math.sin(Math.PI*0.01)*radius);
+		player.body.allowGravity=false;
+	}
+	
+    function update ()
+    {
+		if (gameOver)
+		{
+            return;
+        }
+        if (cursors.left.isDown)
+        {
+			//X := originX + cos(angle)*radius;
+			//Y := originY + sin(angle)*radius;
+			angle -= Math.PI*0.01
+            player.x = (originX + Math.cos(angle)*radius);
+			player.y = (originY + Math.sin(angle)*radius);
+            player.anims.play('left', true);
+        }
+        else if (cursors.right.isDown)
+        {
+			angle += Math.PI*0.01
+			player.x =(originX + Math.cos(angle)*radius);
+			player.y =(originY + Math.sin(angle)*radius);
+            //player.setVelocityX(160);
+
+            player.anims.play('right', true);
+        }
+        else
+        {
+            player.setVelocityX(0);
+
+            player.anims.play('turn');
+        }
+		//moverFondo();
+		
+
+    }
+
+    function collectStar (player, star)
+    {
+        star.disableBody(true, true);
+    }
+
+    //function moverFondo()
+    //{
+	 //background.y +=2;
+	 //if(background.y >= 1445){
+	 	//background.y = -845;
+	   //}
+	 //}
+	 
+	 
+	function hitBarra (player, barras)
+	{
+      this.physics.pause();
+
+      player.setTint(0xff0000);
+
+      player.anims.play('turn');
+
+      gameOver = true;
+	}
+
+	function render () {
+
+      //debug helper
+      game.debug.spriteInfo(barra,32,32);
+
+	}
+
+
+</script>
+
+</body>
+</html>
