@@ -49,7 +49,10 @@
   var tween;
   var fromColors;
   var toColors;
-
+  var tweenBarra1;
+  var tweenBarraS1
+  var tweenBarra2;
+  var tweenBarraS2;
   function preload ()
   {
     this.load.image('ground', 'assets/platformBlanca.png');
@@ -124,12 +127,12 @@
     marker = this.physics.add.image(600, 0, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
     //barras.body.setGravityY(-100);
     //movimiento de la barra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarra1=this.tweens.add({
       targets: barras,
       x: 600,
       y:617,
       duration: 3000,
-      ease: 'Power2',        
+      ease: 'Power2',
       repeat: 5,
         yoyo: false,
         repeatDelay: 150,
@@ -137,7 +140,7 @@
     });
 
     //movimiento de la sombra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarraS1=this.tweens.add({
       targets: marker,
       x: 600,
       y:617,
@@ -155,7 +158,7 @@
     marker2.scaleX=barras2.scaleX
     //barras.body.setGravityY(-100);
     //movimiento de la barra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarra2= this.tweens.add({
       targets: barras2,
       x: 200,
       y:617,
@@ -168,7 +171,7 @@
     });
 
     //movimiento de la sombra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarraS2= this.tweens.add({
       targets: marker2,
       x: 200,
       y:617,
@@ -194,11 +197,11 @@
     var line2 = new Phaser.Geom.Line(360, 0, 360, 600);
     graphics.lineStyle(1, 0xFFFFFF);
     graphics.strokeLineShape(line2);
-    
+
     var line3 = new Phaser.Geom.Line(380, 0, 360, 600);
     graphics.lineStyle(1, 0xFFFFFF);
     graphics.strokeLineShape(line3);
-    
+
     var line4 = new Phaser.Geom.Line(400, 0, 360, 600);
     graphics.lineStyle(1, 0xFFFFFF);
     graphics.strokeLineShape(line4);
@@ -271,8 +274,8 @@
     var i = 0;
     stars.children.iterate(function (child) {
       child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-      
-      
+
+
        _this.tweens.add({
         targets: child,
         angle: 225,
@@ -373,7 +376,7 @@
       player.anims.play('turn');
     }
 
-
+    magiabarra();
 
 
   }
@@ -390,8 +393,10 @@
     graphics.visible = false;
 
     this.physics.pause();
-	
-	
+    tweenBarra1.stop()
+    tweenBarraS1.stop()
+    tweenBarra2.stop()
+    tweenBarraS2.stop()
     player.setTint(0xff0f0f);
 
     player.anims.play('explode');
@@ -467,6 +472,17 @@ function initTweens ()
     );
 }
 
+function magiabarra(){ // Es la misma barra una y otra vez.
+  if (barras.y>700) {
+    barras.y=0;
+    barras.x = Phaser.Math.Between(0, 600);
+    var escala=Phaser.Math.Between(1, 5);
+    barras.setScale(1/escala,1);
+    console.log(escala)
+    console.log(barras.x)
+
+}
+}
 
 
 </script>
