@@ -171,11 +171,11 @@ function hitBarra (player, barras) // No se de donde saque esta funcion.
   gameOver = true;
 }
 function magiabarra(){ // Es la misma barra una y otra vez.
-if (barras.y>700) {
-  barras.y=0;
-  barras.x = Phaser.Math.Between(0, 600);
-  var escala=Phaser.Math.Between(1, 5);
-barras.setScale(1/escala,1);
+  if (barras.y>700) {
+    barras.y=0;
+    barras.x = Phaser.Math.Between(0, 600);
+    var escala=Phaser.Math.Between(1, 5);
+    barras.setScale(1/escala,1);
     console.log(escala)
     console.log(barras.x)
 

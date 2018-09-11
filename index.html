@@ -49,7 +49,12 @@
   var tween;
   var fromColors;
   var toColors;
-
+  var tweenBarra1;
+  var tweenBarraS;
+  var tweenBarraS1;
+  var tweenBarra2;
+  var tweenBarraS2;
+  var tweenBarraS3;
   function preload ()
   {
     this.load.image('ground', 'assets/platformBlanca.png');
@@ -120,64 +125,96 @@
     //barras.create(600, 0, 'ground');
 
     //Creacion de las barras para el nivel
-    barras = this.physics.add.image(600, 0, 'ground'); // Se agrega las barras 600,0 cordenada actual)
-    marker = this.physics.add.image(600, 0, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
+    barras = this.physics.add.image(600, -9, 'ground'); // Se agrega las barras 600,0 cordenada actual)
+    marker = this.physics.add.image(600, -9, 'ground').setAlpha(0.7);//se crea una sombra (600,0 cordenada actual)
+    marker1 = this.physics.add.image(600, -9, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
+
     //barras.body.setGravityY(-100);
     //movimiento de la barra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarra1=this.tweens.add({
       targets: barras,
       x: 600,
-      y:617,
+      y:730,
       duration: 3000,
-      ease: 'Power2',        
-      repeat: 5,
+      ease: 'Power2',
+      repeat: 2 ,
+        yoyo: false,
+        repeatDelay: 200,
+     completeDelay: 300
+    });
+
+    //movimiento de la sombra (x,y cordenadas futuras)
+    tweenBarraS1=this.tweens.add({
+      targets: marker,
+      x: 600,
+      y:730,
+      duration: 3050,
+      ease: 'Power2',
+       repeat: 2,
         yoyo: false,
         repeatDelay: 150,
-      completeDelay: 3000
+      completeDelay: 305
     });
 
     //movimiento de la sombra (x,y cordenadas futuras)
     this.tweens.add({
-      targets: marker,
-      x: 600,
-      y:617,
-      duration: 3200,
-      ease: 'Power2',
-       repeat: 5,
-        yoyo: false,
-        repeatDelay: 150,
-      completeDelay: 3000
+        targets: marker1,
+        x: 600,
+        y:730 ,
+        //angle:180,
+        repeat: 2,
+        duration: 3100,
+        repeatDelay: 100,
+        ease: 'Power2',
+       completeDelay: 305
     });
 
+
     barras2 = this.physics.add.image(200, -1200, 'ground'); // Se agrega las barras 600,0 cordenada actual)
-    marker2 = this.physics.add.image(200, -1200, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
-    barras2.scaleX=Phaser.Math.FloatBetween(0.6, 0.8)
+    marker2 = this.physics.add.image(200, -1200, 'ground').setAlpha(0.7);//se crea una sombra (600,0 cordenada actual)
+    marker3 = this.physics.add.image(200, -1200, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
+
+    barras2.scaleX=Phaser.Math.FloatBetween(0.5, 0.8)
     marker2.scaleX=barras2.scaleX
+    marker3.scaleX=barras2.scaleX
     //barras.body.setGravityY(-100);
     //movimiento de la barra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarra2= this.tweens.add({
       targets: barras2,
       x: 200,
-      y:617,
+      y:730,
       duration: 3700,
       ease: 'Power2',
       repeat: 2,
       yoyo: false,
-      repeatDelay: 150,
+      repeatDelay: 200,
       completeDelay: 3000
     });
 
     //movimiento de la sombra (x,y cordenadas futuras)
-    this.tweens.add({
+    tweenBarraS2= this.tweens.add({
       targets: marker2,
       x: 200,
-      y:617,
-      duration: 3900,
+      y:730,
+      duration: 3750,
       ease: 'Power2',
       repeat: 2,
       yoyo: false,
       repeatDelay: 150,
-      completeDelay: 3000
+      completeDelay: 3050
+    });
+
+    //movimiento de la sombra (x,y cordenadas futuras)
+    tweenBarraS3= this.tweens.add({
+        targets: marker3,
+        x: 200,
+        y:730 ,
+        //angle:180,
+        duration: 3800,
+        repeatDelay: 100,
+        ease: 'Power2',
+        repeat: 2,
+        completeDelay: 3050
     });
 
     //Dibujamos el circulo de accion del pj
@@ -194,11 +231,11 @@
     var line2 = new Phaser.Geom.Line(360, 0, 360, 600);
     graphics.lineStyle(1, 0xFFFFFF);
     graphics.strokeLineShape(line2);
-    
+
     var line3 = new Phaser.Geom.Line(380, 0, 360, 600);
     graphics.lineStyle(1, 0xFFFFFF);
     graphics.strokeLineShape(line3);
-    
+
     var line4 = new Phaser.Geom.Line(400, 0, 360, 600);
     graphics.lineStyle(1, 0xFFFFFF);
     graphics.strokeLineShape(line4);
@@ -271,8 +308,8 @@
     var i = 0;
     stars.children.iterate(function (child) {
       child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-      
-      
+
+
        _this.tweens.add({
         targets: child,
         angle: 225,
@@ -373,7 +410,7 @@
       player.anims.play('turn');
     }
 
-
+    //magiabarra();
 
 
   }
@@ -390,8 +427,13 @@
     graphics.visible = false;
 
     this.physics.pause();
-	
-	
+    tweenBarra1.stop();
+    tweenBarraS.stop();
+    tweenBarraS1.stop();
+    tweenBarra2.stop();
+    tweenBarraS2.stop();
+    tweenBarraS3.stop();
+
     player.setTint(0xff0f0f);
 
     player.anims.play('explode');
@@ -467,6 +509,17 @@ function initTweens ()
     );
 }
 
+function magiabarra(){ // Es la misma barra una y otra vez.
+  if (barras.y>700) {
+    barras.y=0;
+    barras.x = Phaser.Math.Between(0, 600);
+    var escala=Phaser.Math.Between(1, 5);
+    barras.setScale(1/escala,1);
+    console.log(escala)
+    console.log(barras.x)
+
+}
+}
 
 
 </script>
