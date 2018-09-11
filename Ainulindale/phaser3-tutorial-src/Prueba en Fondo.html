@@ -18,7 +18,7 @@
         type: Phaser.Auto,
         width: 800,
         height: 600,
-        backgroundColor: '#000000', //080808
+        backgroundColor: '#0F0F0F', //080808
         physics: {
             default: 'arcade',
             arcade: {
@@ -51,8 +51,8 @@
     {
 		this.load.image('block', 'assets/grisNegro1.png');
        // this.load.image('sky', 'assets/fondo2.png');
-        this.load.image('ground', 'assets/platformAzul.png');
-        this.load.image('star', 'assets/nota.png');
+        this.load.image('ground', 'assets/platformBlanca.png');
+		this.load.image('star', 'assets/nota.png');
         this.load.image('bomb', 'assets/bomb.png');
         this.load.spritesheet('dude', 'assets/playerAmarillo.png', { frameWidth: 51, frameHeight: 48 });
     }
@@ -120,10 +120,30 @@
 		
 
 		// Lo nuevo
-		barras = this.physics.add.sprite(600, 0, 'ground'); // Se agrega las barras
-		barras.body.setGravityY(-100);
-
-
+		
+		barras = this.physics.add.image(600, 0, 'ground'); // Se agrega las barras 600,0 cordenada actual)
+		marker = this.physics.add.image(600, 0, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
+		//barras.body.setGravityY(-100);
+		
+		//movimiento de la barra (x,y cordenadas futuras)
+		this.tweens.add({
+        targets: barras,
+        x: 600,
+        y:617,
+        duration: 3000,
+        ease: 'Power2',
+        completeDelay: 3000
+    });
+		
+		//movimiento de la sombra (x,y cordenadas futuras)
+		this.tweens.add({
+        targets: marker,
+        x: 600,
+        y:617,
+        duration: 3200,
+        ease: 'Power2',
+        completeDelay: 3000
+    });
 
 
 
