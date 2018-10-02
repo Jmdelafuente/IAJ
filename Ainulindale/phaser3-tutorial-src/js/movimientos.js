@@ -63,6 +63,9 @@ Formulas para el seek behavior
 
            vehiculo.body.velocity = wanderForce;
 
+           
+
+
     }
 
     function flee(vehiculo, objetivo){

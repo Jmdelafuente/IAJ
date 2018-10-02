@@ -35,7 +35,7 @@ function preload ()
 {
   console.log("iniciando preload")
     this.load.image('sky', '../assets/fondo2.png');
-    this.load.image('ground', '../assets/platform.png');
+    this.load.image('ground', '../assets/platformBlanca.png');
     this.load.image('star', '../assets/nota.png');
     this.load.image('bomb', '../assets/bomb.png');
     this.load.spritesheet('dude', '../assets/playerAmarillo.png', { frameWidth: 51, frameHeight: 48 });
