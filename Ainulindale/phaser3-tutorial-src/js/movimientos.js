@@ -16,10 +16,10 @@ Formulas para el seek behavior
  */
 
  //Valores para seek
- const MAX_SPEED=200;
+ const MAX_SPEED=300;
  const MAX_DIST=100;
  //Valores para Wander
- const CIRCLE_DISTANCE=50;
+ const CIRCLE_DISTANCE=80;
  const CIRCLE_RADIUS=25;
  const ANGLE_CHANGE=8;
  //const MAX_TIME=100;
@@ -46,26 +46,76 @@ Formulas para el seek behavior
            var displacement = new Phaser.Math.Vector2(Math.random(),Math.random());
            displacement.scale(CIRCLE_RADIUS)
 
-           // Randomly change the vector direction
-           // by making it change its current angle
+
+           // Cambia aleatoriamente la direccion del vector al cambiar su angulo
            setAngle(displacement, wanderAngle);
 
-           //
-           // Change wanderAngle just a bit, so it
-           // won't have the same value in the
-           // next game frame.
+           // FIX: cambia muy lieramente el angulo para el sgte frame
            wanderAngle += Math.random() * ANGLE_CHANGE - ANGLE_CHANGE * .5;
 
-           //
-           // Finally calculate and return the wander force
+           // Calcula la fuerza de wander
            var wanderForce;
            wanderForce = circleCenter.add(displacement);
-
+           // Aplicamos la fuerza calculada
            vehiculo.body.velocity = wanderForce;
 
-           
 
 
+
+    }
+
+    function arrive(seguidor, objetivo){
+	    //Obtengo VectorDeseado
+	    vectorDeseado = calcularVelocidadDeseada(seguidor, objetivo);
+
+	    //Obtengo el vector Steering
+	    vectorSteeringForce = calcularSteeringForce(seguidor, vectorDeseado);
+
+	    //aplico el vector de fuerza al seguidor
+	    aplicarVectorDeFuerza(seguidor,vectorSteeringForce);
+
+    }
+
+    function flocking(boids,game){
+
+      // number of boids (bird-oid objects)
+      var boidsAmount = boids.length;
+      // speed of each boid, in pixels per second
+      var boidSpeed = 100;
+      // radius of sight of the boid
+      var boidRadius = 500;
+      // array which will contain all boids
+      //var boids = [];
+
+      // temp array to calculate centroid
+      var centroidArray = [];
+      // looping through each boid
+      for(var i = 0; i < boidsAmount; i++){
+           // for each boid, looping through each boid
+           for(var j = 0; j < boidsAmount; j++){
+                // if the boid is not the current boid and the boid is within boid radius...
+                if(i != j && ((boids[i].x-boids[j].x)+(boids[i].y-boids[j].y)) < boidRadius){
+                     // pushing the boid into centroid array
+                     centroidArray.push(boids[j]);
+                }
+           }
+           // if centroidArray is populated, that is if there were boids nearby the current boid...
+           if(centroidArray.length > 0){
+                // calculating the centroid
+                var centroid = Phaser.Geom.Point.GetCentroid(centroidArray);
+           }
+           else{
+                // just tossing a random point
+                var randomPoint = new Phaser.Geom.Point(Math.abs(Math.random()*800), Math.abs(Math.random()*600));
+                var centroid = new Phaser.Geom.Point(randomPoint.x, randomPoint.y);
+           }
+           // rotating the boid towards the centroid
+           boids[i].body.angle = Phaser.Math.Angle.BetweenPoints(boids[i],centroid);
+           // moving the boid towards the centroid
+           //Phaser.physics.moveTo(boid[i],centroid.x, centroid.y, boidSpeed);
+           seek(boids[i],centroid);
+           //game.physics.arcade.moveToPointer(boids[i],100);
+       }
     }
 
     function flee(vehiculo, objetivo){
@@ -79,6 +129,23 @@ Formulas para el seek behavior
             aplicarVectorDeFuerza(vehiculo,vectorSteeringForce);
 
        }
+
+    function getCentroide(points){
+        if (points.lenght > 0) {
+          var x_acc = 0;
+          var y_acc = 0;
+
+          for (i=0; i < points.length; i++) {
+            x_acc += points[i].x;
+            y_acc += points[i].y;
+            };
+
+          var x_centroid = x_acc / points.lenght
+          var y_centroid = y_acc / points.lenght
+
+        }
+        return [x_centroid,y_centroid];
+    }
 
     function setAngle(vector, value){
           var len = vector.length();

@@ -14,12 +14,14 @@
 <body>
 
   <script type="text/javascript">
-
+//window.onload = function() {
   var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 600,
     backgroundColor:'2D2D2D',
+    orientation: 'PORTRAIT',
+    title: 'Ainulindale: La gran Canción',
     physics: {
       default: 'arcade',
       arcade: {
@@ -27,12 +29,15 @@
         debug: false
       }
     },
-    scene: {
-      preload: preload,
-      create: create,
-      update: update,
-      render: render
-    }
+    scene: [
+      SceneA ={
+        preload: preload,
+        create: create,
+        update: update,
+        render: render
+      },
+    ]
+    //scene: { SceneA, SceneB, SceneC }
   };
 
   var player;
@@ -41,7 +46,6 @@
   var cursors;
   var gameOver = false;
   var radius = 90;
-  var game = new Phaser.Game(config);
   var angle = 0;
   var originX=400;
   var originY=450;
@@ -56,7 +60,22 @@
   var tweenBarra2;
   var tweenBarraS2;
   var tweenBarraS3;
+  var boidsAmount = 50;
+  // array which will contain all boids
+  var boids = [];
+  var elementosResizeables;
+  var game = new Phaser.Game(config);
+  var ancho = game.config.width;
+  var alto = game.config.height;
+  var cuadrantes,curve;
+  window.focus();
 
+
+//   window.addEventListener('resize', function (event) {
+//
+//     game.resize(window.innerWidth, window.innerHeight);
+//
+// }, false);
   function preload ()
   {
     this.load.image('ground', 'assets/platformBlanca.png');
@@ -70,7 +89,6 @@
     this.load.image('exp4', 'assets/playerAmarilloExplode4.png');
 
     //Animacion de carga
-
     var progressBar = this.add.graphics();
             var progressBox = this.add.graphics();
             progressBox.fillStyle(0x222222, 0.8);
@@ -139,6 +157,14 @@
 
   function create ()
   {
+    //Creacion de una nota
+    var cuadrante = Math.floor(Math.random() * 6) + 1;
+    //lineas(this,1,1,cuadrante);
+    //Auto-resize para los juegos
+    //this.events.on('resize', resize, this);
+    //Definimos los cuadrantes con el tamaño del juegos
+    cuadrantes = definirCuadrantes();
+    nubeNota(this,cuadrantes[cuadrante].anchoCuadInicio,cuadrantes[cuadrante].anchoCuadFin,cuadrantes[cuadrante].altoCuadInicio,cuadrantes[cuadrante].altoCuadFin);
 
     //Empieza codigo de fondo
     //definir cantidad de figuras para el fondo
@@ -250,7 +276,7 @@
     barras2.scaleX=Phaser.Math.FloatBetween(0.5, 0.8)
     marker2.scaleX=barras2.scaleX
     marker3.scaleX=barras2.scaleX
-    //barras.body.setGravityY(-100);
+    barras.body.setGravityY(-100);
     //movimiento de la barra (x,y cordenadas futuras)
     tweenBarra2= this.tweens.add({
       targets: barras2,
@@ -295,31 +321,6 @@
     circle = new Phaser.Geom.Circle(originX, originY, radius);
     graphics.strokeCircleShape(circle);
     graphics.alpha = 0.3;
-
-    //Dibujar Pentagrama
-    var line = new Phaser.Geom.Line(400, 0, 400, 600);
-    graphics.lineStyle(1, 0xFFFFFF);
-    graphics.strokeLineShape(line);
-
-    var line2 = new Phaser.Geom.Line(360, 0, 360, 600);
-    graphics.lineStyle(1, 0xFFFFFF);
-    graphics.strokeLineShape(line2);
-
-    var line3 = new Phaser.Geom.Line(380, 0, 380, 600);
-    graphics.lineStyle(1, 0xFFFFFF);
-    graphics.strokeLineShape(line3);
-
-    var line4 = new Phaser.Geom.Line(400, 0, 400, 600);
-    graphics.lineStyle(1, 0xFFFFFF);
-    graphics.strokeLineShape(line4);
-
-    var line5 = new Phaser.Geom.Line(420, 0, 420, 600);
-    graphics.lineStyle(1, 0xFFFFFF);
-    graphics.strokeLineShape(line5);
-
-    var line6 = new Phaser.Geom.Line(440, 0, 440, 600);
-    graphics.lineStyle(1, 0xFFFFFF);
-    graphics.strokeLineShape(line6);
 
     //Colisiones del PJ
     //player.setBounce(0.2);
@@ -375,91 +376,91 @@
 
 
     cursors = this.input.keyboard.createCursorKeys();
-    stars = this.physics.add.group({
-      key: 'star',
-      repeat: 3,
-      setXY: { x: 300, y: 0, stepX: 50, stepY: -55 }
-    });
-    notasVagas = this.physics.add.group({
-      key: 'star',
-      repeat: 3,
-      setXY: { x: 300, y: 0, stepX: 50, stepY: -55 }
-    });
-
+    // stars = this.physics.add.group({
+    //   key: 'star',
+    //   repeat: 3,
+    //   setXY: { x: 300, y: 0, stepX: 50, stepY: -55 }
+    // });
+    // notasVagas = this.physics.add.group({
+    //   key: 'star',
+    //   repeat: 3,
+    //   setXY: { x: 300, y: 0, stepX: 50, stepY: -55 }
+    // });
+    // stars = notasVagas;
     var _this = this;
 
-    var i = 0;
-    stars.children.iterate(function (child) {
-      child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-
-
-       _this.tweens.add({
-        targets: child,
-        scaleX: 2,
-        scaleY: 2,
-        angle: 225,
-        y:700,
-        // opacity: 4,
-        _ease: 'Sine.easeInOut',
-        ease: 'Power2',
-        duration: 7000,
-        delay: i * 5,
-        repeat: -1,
-        yoyo: false,
-        hold: 1000,
-        repeatDelay: 150
-      });
-
-      i++;
-
-      if (i % 110 === 0)
-      {
-        i = 0;
-      }
-
-    });
+    // var i = 0;
+    // stars.children.iterate(function (child) {
+    //   child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+    //
+    //
+    //    _this.tweens.add({
+    //     targets: child,
+    //     scaleX: 2,
+    //     scaleY: 2,
+    //     angle: 225,
+    //     y:700,
+    //     // opacity: 4,
+    //     _ease: 'Sine.easeInOut',
+    //     ease: 'Power2',
+    //     duration: 7000,
+    //     delay: i * 5,
+    //     repeat: -1,
+    //     yoyo: false,
+    //     hold: 1000,
+    //     repeatDelay: 150
+    //   });
+    //
+    //   i++;
+    //
+    //   if (i % 110 === 0)
+    //   {
+    //     i = 0;
+    //   }
+    //
+    // });
     //Efecto de la nota vaga
-     var _this = this;
-     notasVagas.children.iterate(function (child) {
-     child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-      _this.tweens.add({
-         targets: child,
-         scaleX: 2,
-         scaleY: 2,
-         angle: 200,
-         //y:700,
-         // opacity: 4,
-         _ease: 'Sine.easeInOut',
-         ease: 'Power2',
-         duration: 4000,
-         delay: i * 5,
-         repeat: -1,
-         yoyo: true,
-         hold: 1000,
-         repeatDelay: 150
-       });
-
-       i++;
-
-       if (i % 110 === 0)
-       {
-         i = 0;
-       }
-
-     });
+     // var _this = this;
+     // notaVaga.children.iterate(function (child) {
+     // child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+     //  _this.tweens.add({
+     //     targets: child,
+     //     scaleX: 2,
+     //     scaleY: 2,
+     //     angle: 200,
+     //     //y:700,
+     //     // opacity: 4,
+     //     _ease: 'Sine.easeInOut',
+     //     ease: 'Power2',
+     //     duration: 4000,
+     //     delay: i * 5,
+     //     repeat: -1,
+     //     yoyo: true,
+     //     hold: 1000,
+     //     repeatDelay: 150
+     //   });
+     //
+     //   i++;
+     //
+     //   if (i % 110 === 0)
+     //   {
+     //     i = 0;
+     //   }
+     //
+     // });
 
 
     //});
 
     //Colisiones de las barras
-    this.physics.add.collider(stars, barras); // Colision
+    //this.physics.add.collider(stars, barras); // Colision
     //this.physics.add.collider(sombra, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
-	  this.physics.add.collider(stars, barras2); // Colision
+	  //this.physics.add.collider(stars, barras2); // Colision
     //this.physics.add.collider(sombra, barras2, hitBarra, null, this); // Para la interseccion  entre barra y player
 
 
 
-    this.physics.add.overlap(sombra, stars, collectStar, null, this);
+    //this.physics.add.overlap(sombra, stars, collectStar, null, this);
     this.physics.add.overlap(sombra, notaVaga, collectStar, null, this);
     player.x = (originX + Math.cos(Math.PI*0.03)*radius);
     player.y = (originY + Math.sin(Math.PI*0.03)*radius);
@@ -486,12 +487,28 @@
 
   function update ()
   {
-    var _this = this;
-    notasVagas.children.iterate(function (child) {
-      wander(child);
-    });
+    //Chequeo si termino el flocking
+    if(boids[0].body != null){
+      var termino = checkFlocking();
+      if(termino){
+        var cenX =boids[0].body.x;
+        var cenY =boids[0].body.y;
+        for(var i = 0; i < boidsAmount; i++){
+          boids[i].destroy(true,true);
+        }
+        lineas(this,cenX,cenY);
+      }
+      else{
+        //Movimiento de flocking
+        flocking(boids,game);
+      }
+    }
+    // var _this = this;
+    // notasVagas.children.iterate(function (child) {
+    //   wander(child);
+    // });
 
-    seek(sombra,player)
+    seek(sombra,player);
     wander(notaVaga);
 
     if (gameOver)
@@ -502,49 +519,28 @@
 
     this.input.mouse.disableContextMenu();
 
-        // this.input.on('pointerdown', function (pointer) {
-        //
-        //   if (pointer.leftButtonDown())
-        //     {
-        //       angle -= Math.PI*0.0001
-        //       player.x = (originX + Math.cos(angle)*radius);
-        //       player.y = (originY + Math.sin(angle)*radius);
-        //       sombra.anims.play('left', true);
-        //     }
-        //     else if (pointer.rightButtonDown())
-        //     {
-        //       angle += Math.PI*0.0001
-        //       player.x =(originX + Math.cos(angle)*radius);
-        //       player.y =(originY + Math.sin(angle)*radius);
-        //       sombra.anims.play('right', true);
-        //     }
-        //
-        // });
-
-        // this.input.on('pointerup', function () {
-        //
-        //   player.setVelocityX(0);
-        //
-        //   sombra.anims.play('turn');
-        //
-        // });
 
         this.input.on('pointermove', function (pointer) {
+          sx = pointer.x;
+          sy = pointer.y;
+          if (pointer.leftButtonDown() && sx >= player.x )
+              {
+                angle -= Math.PI*0.0001
+                player.x = (originX + Math.cos(angle)*radius);
+                player.y = (originY + Math.sin(angle)*radius);
+                sombra.anims.play('left', true);
+                  //console.log(pointer);
 
-          if (pointer.leftButtonDown())
-            {
-              angle -= Math.PI*0.0001
-              player.x = (originX + Math.cos(angle)*radius);
-              player.y = (originY + Math.sin(angle)*radius);
-              sombra.anims.play('left', true);
-            }
-            else if (pointer.rightButtonDown())
-            {
-              angle += Math.PI*0.0001
-              player.x =(originX + Math.cos(angle)*radius);
-              player.y =(originY + Math.sin(angle)*radius);
-              sombra.anims.play('right', true);
-            }
+              }
+              else if (pointer.leftButtonDown() && sx<= player.x)
+              {
+
+                  angle += Math.PI*0.0001
+                  player.x =(originX + Math.cos(angle)*radius);
+                  player.y =(originY + Math.sin(angle)*radius);
+                  sombra.anims.play('right', true);
+
+              }
 
         });
 
@@ -584,6 +580,12 @@
   function collectStar (player, star)
   {
     star.disableBody(true, true);
+
+  }
+  function collectStar2 (player, star)
+  {
+    star.visible = false;
+    curve.visible = false;
   }
 
 
@@ -782,6 +784,127 @@ function movimientoBarras(scope){
   });
 }
 
+function resize (width, height)
+{
+    if (width === undefined) { width = this.sys.game.config.width; }
+    if (height === undefined) { height = this.sys.game.config.height; }
+
+    this.cameras.resize(width, height);
+
+    this.bg.setSize(width, height);
+    this.logo.setPosition(width / 2, height / 2);
+}
+
+function definirCuadrantes(){
+  var cp1x,cp1y,cp2x,cp2y,epx,epy;
+
+  //var anchoCuadInicio = (cuadrante % 3)* ancho* 0.33;
+  //var anchoCuadFin = ((cuadrante % 3) + 1)* ancho* 0.33;
+
+  var altoCuadInicio, altoCuadFin;
+  cuadrantes= {
+         1:{altoCuadInicio : 0,
+          anchoCuadInicio : (1 % 3)* ancho* 0.33,
+          anchoCuadFin : 2* ancho* 0.33,
+          altoCuadFin : alto * 0.165,
+          },
+         2:{altoCuadInicio : 0,
+           anchoCuadInicio : (2 % 3)* ancho* 0.33,
+          altoCuadFin : alto * 0.165,
+          anchoCuadFin : ancho,
+          },
+          3:{altoCuadInicio : 0,
+            anchoCuadInicio : (3 % 3)* ancho* 0.33,
+          altoCuadFin : alto * 0.165,
+          anchoCuadFin : ((3 % 3) + 1)* ancho* 0.33,
+          },
+       4:{altoCuadInicio : alto * 0.165,
+         anchoCuadInicio : (4 % 3)* ancho* 0.33,
+          altoCuadFin : alto * 0.33,
+          anchoCuadFin : ((4%3)+1)* ancho* 0.33,
+          },
+       5:{altoCuadInicio : alto * 0.165,
+         anchoCuadInicio : (5 % 3)* ancho* 0.33,
+          altoCuadFin : alto * 0.33,
+          anchoCuadFin : ancho,
+          },
+      6:{ altoCuadInicio : alto * 0.165,
+        anchoCuadInicio : (6 % 3)* ancho* 0.33,
+          altoCuadFin : alto * 0.33,
+          anchoCuadFin : ((6 % 3) + 1)* ancho* 0.33,
+          }};
+  return cuadrantes;
+}
+
+//graphics,curve,lx,ly,scope
+function lineas(scope,cx,cy){
+    var epx,epy;
+    epx=Math.floor(Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+cuadrantes[1].anchoCuadInicio);
+    epy=alto + 10;
+    var cuadrante = Math.floor(Math.random() * 6) + 1;
+    var cp1x,cp1y;
+    cp1x = Math.floor(Math.random()*(cuadrantes[cuadrante].anchoCuadFin-cuadrantes[cuadrante].anchoCuadInicio)+cuadrantes[cuadrante].anchoCuadInicio);
+    cp1y = Math.floor(Math.random()*(cuadrantes[cuadrante].altoCuadFin-cuadrantes[cuadrante].altoCuadInicio)+cuadrantes[cuadrante].altoCuadInicio);
+    cuadrante = Math.floor(Math.random() * 6) + 1;
+    cp2x = Math.floor(Math.random()*(cuadrantes[cuadrante].anchoCuadFin-cuadrantes[cuadrante].anchoCuadInicio)+cuadrantes[cuadrante].anchoCuadInicio);
+    cp2y = Math.floor(Math.random()*(cuadrantes[cuadrante].altoCuadFin-cuadrantes[cuadrante].altoCuadInicio)+cuadrantes[cuadrante].altoCuadInicio);
+
+//se crean 4 vectores para que se utilizan de puntos para trazas la curva
+    var startPoint = new Phaser.Math.Vector2(cx, cy);
+    var controlPoint1 = new Phaser.Math.Vector2(cp1x, cp1y);
+    var controlPoint2 = new Phaser.Math.Vector2(cp2x, cp2y);
+    var endPoint = new Phaser.Math.Vector2(epx, epy);
+//se calcula la curva que recorrera la nota
+    curve = new Phaser.Curves.CubicBezier(startPoint, controlPoint1, controlPoint2, endPoint);
+
+    var graphics = scope.add.graphics();
+//se dibuja la linea calculada
+    graphics.lineStyle(1, 0xf5f5f5, 1);
+
+    curve.draw(graphics, 64);
+//se dibuja la nota en su inicio
+    //var nota=scope.physics.add.image(cx, cy, "star").setActive().setVelocity(0, 0).setBounce(0);
+    var ball = scope.add.follower(curve, cx, cy, 'star');
+     scope.physics.world.enable(ball);
+     scope.physics.add.overlap(sombra, ball, collectStar2, null, this);
+
+//caracteristicas del movimiento de la nota
+    ball.startFollow({
+        duration: 3000,
+        repeat: 2,
+        ease: 'Sine.easeInOut'
+    });
+    console.log(curve);
+}
+
+function nubeNota(scope,x0,x1,y0,y1){
+  //Puntos para flocking
+  for(var i = 0; i < boidsAmount; i++){
+       // placing the boid at a random point within the canvas
+       var randomPoint = new Phaser.Geom.Point(Math.floor(Math.random()*(x1-x0)+x0), Math.floor(Math.random()* (y1- y0)+y0));
+       boids[i] = scope.physics.add.image(randomPoint.x, randomPoint.y, "bomb").setActive().setVelocity(0, 0).setBounce(0);
+       // enabling boid physics
+       //this.physics.create(boids[i].asset, Phaser.Physics.ARCADE);
+       // allowing us to manually rotate the boid
+       boids[i].body.allowRotation = false;
+  };
+
+}
+
+//}
+
+  function checkFlocking(){
+     var x= boids[0].body.x;
+     var y= boids[0].body.y;
+     var todos=true;
+     for(var i = 0; i < boidsAmount; i++){
+       if (Math.floor(x)!=Math.floor(boids[i].body.x) && Math.floor(y)!=Math.floor(boids[i].body.y)){
+         todos=false;
+         break;
+       }
+     }
+     return todos;
+  };
 
 </script>
 
