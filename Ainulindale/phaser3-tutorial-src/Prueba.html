@@ -69,6 +69,7 @@
   var alto = game.config.height;
   var cuadrantes,curve,graphics;
   var timerNota;
+  var escena;
   window.focus();
 
 
@@ -164,9 +165,8 @@
     //this.events.on('resize', resize, this);
 
     //Creacion de una nota
-    var cuadrante = Math.floor(Math.random() * 6) + 1;
-    nubeNota(this,cuadrantes[cuadrante].anchoCuadInicio,cuadrantes[cuadrante].anchoCuadFin,cuadrantes[cuadrante].altoCuadInicio,cuadrantes[cuadrante].altoCuadFin);
-
+    escena = this;
+    lanzarNota(escena);
     //Empieza codigo de fondo
     //definir cantidad de figuras para el fondo
     var blocks = this.add.group({ key: 'block', repeat: 107, setScale: { x: 0, y: 0 } });
@@ -497,9 +497,14 @@
     star.visible = false;
     star.destroy();
     graphics.visible=false;
-    timerNota = this.time.addEvent({ delay: 10000, callback: null, callbackScope: this });
+    timerNota = this.time.addEvent({ delay: 10000, callback: lanzarNota(escena), callbackScope: this });
   }
 
+  function lanzarNota(scope){
+    var cuadrante = Math.floor(Math.random() * 6) + 1;
+    nubeNota(scope,cuadrantes[cuadrante].anchoCuadInicio,cuadrantes[cuadrante].anchoCuadFin,cuadrantes[cuadrante].altoCuadInicio,cuadrantes[cuadrante].altoCuadFin);
+
+  }
 
   function hitBarra (player, barras)
   {
