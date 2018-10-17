@@ -68,7 +68,6 @@
   var ancho = game.config.width;
   var alto = game.config.height;
   var cuadrantes,curve,graphics;
-  var timerNota;
   var escena;
   window.focus();
 
@@ -90,11 +89,13 @@
     this.load.image('exp3', 'assets/playerAmarilloExplode3.png');
     this.load.image('exp4', 'assets/playerAmarilloExplode4.png');
 
+    var elementosACargar = ["Creando el Universo","Definiendo las estrellas","Alineando Planetas","Inventando excusas","Descansando", "Inventando el infinito", "Estableciendo aletoreidad y libre albedrío"]
     //Animacion de carga
     var progressBar = this.add.graphics();
             var progressBox = this.add.graphics();
             progressBox.fillStyle(0x222222, 0.8);
             progressBox.fillRect(240, 270, 320, 50);
+
 
             var width = this.cameras.main.width;
             var height = this.cameras.main.height;
@@ -140,7 +141,11 @@
             });
 
             this.load.on('fileprogress', function (file) {
-                assetText.setText('Creando los ' + file.key);
+                //assetText.setText('Creando los ' + file.key);
+                var i = Math.floor(Math.random() * elementosACargar.length);
+                var elemento = elementosACargar[i];
+                elementosACargar = elementosACargar.splice(i, 1);
+                assetText.setText(elemento);
             });
 
             this.load.on('complete', function () {
@@ -163,10 +168,11 @@
     cuadrantes = definirCuadrantes();
     //Auto-resize para los juegos
     //this.events.on('resize', resize, this);
-
-    //Creacion de una nota
+    //Seteamos timer y contexto para la nueva nota
     escena = this;
     lanzarNota(escena);
+    timedEvent = escena.time.addEvent({ delay: 9000, callback: onEvent, callbackScope: this});
+
     //Empieza codigo de fondo
     //definir cantidad de figuras para el fondo
     var blocks = this.add.group({ key: 'block', repeat: 107, setScale: { x: 0, y: 0 } });
@@ -487,6 +493,17 @@
 
   }
 
+
+  function onEvent ()
+  {
+    graphics.visible=false;
+    lanzarNota(escena);
+    timedEvent.reset({ delay: Phaser.Math.Between(11500,18000), callback: onEvent, callbackScope: this, repeat: 1});
+    //var timerNota = escena.time.addEvent({ delay: 70000, callback: lanzarNota(escena), callbackScope: this });
+  }
+
+
+
   function collectStar (player, star)
   {
     star.disableBody(true, true);
@@ -497,7 +514,6 @@
     star.visible = false;
     star.destroy();
     graphics.visible=false;
-    timerNota = this.time.addEvent({ delay: 10000, callback: lanzarNota(escena), callbackScope: this });
   }
 
   function lanzarNota(scope){
