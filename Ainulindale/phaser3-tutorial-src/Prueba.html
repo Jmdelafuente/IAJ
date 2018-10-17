@@ -41,7 +41,7 @@
         render: render
       },
     ]
-    //scene: { SceneA, SceneB, SceneC }
+    scene: { Juego, MainMenu, SceneC }
   };
 
   var player;
@@ -58,14 +58,13 @@
   var tween;
   var fromColors;
   var toColors;
-  var tweenBarra1;
-  var tweenBarraS;
-  var tweenBarraS1;
-  var tweenBarra2;
-  var tweenBarraS2;
-  var tweenBarraS3;
+  // var tweenBarra1;
+  // var tweenBarraS;
+  // var tweenBarraS1;
+  // var tweenBarra2;
+  // var tweenBarraS2;
+  // var tweenBarraS3;
   var boidsAmount = 50;
-  // array which will contain all boids
   var boids = [];
   var elementosResizeables;
   var game = new Phaser.Game(config);
@@ -83,6 +82,71 @@
 //     game.resize(window.innerWidth, window.innerHeight);
 //
 // }, false);
+
+class MainMenu extends Phaser.Scene {
+    constructor() {
+        super({key: "MainMenu"});
+    }
+
+    create() {
+        //this.add.image(640, 320, "background");
+        //var  title = this.add.image(200, 200, "title"); reduce png size
+        var jugarBut = this.add.image(960, 120, "jugarBut").setInteractive();
+        var opcionesBut = this.add.image(960, 180, "opcionesBut").setInteractive();
+        var ayudaBut = this.add.image(960, 240, "ayudaBut").setInteractive();
+        var creditosBut = this.add.image(960, 300, "creditosBut").setInteractive();
+        var sairBut = this.add.image(960, 360, "salirBut").setInteractive();
+
+
+        //Click on title easter egg - to do
+
+        menuNumber = -1;
+
+        jugarBut.on("pointerdown", function (ev) {
+            menuNumber = 0;
+        });
+
+        opcionesBut.on("pointerdown", function (ev) {
+            menuNumber = 1;
+        });
+
+        ayudaBut.on("pointerdown", function (ev) {
+            menuNumber = 2;
+        });
+
+
+        creditosBut.on("pointerdown", function (ev) {
+            menuNumber = 3;
+        });
+
+        salirBut.on("pointerdown", function (ev) {
+            menuNumber = 4;
+        });
+    }
+
+    update() {
+        if(menuNumber===0){
+            this.scene.start("Jugar");
+        }
+        else if (menuNumber===1){
+            this.scene.start("Opciones");
+        }
+        else if (menuNumber===2){
+            this.scene.start("Ayuda");
+        }
+        else if (menuNumber===3){
+            this.scene.start("Creditos");
+        }
+        else if (menuNumber===4){
+            this.scene.start("");
+        }
+    }
+}
+
+class Juego extends Phaser.Scene {
+    constructor() {
+        super({key: "Juego"});
+    }
   function preload ()
   {
     this.load.image('ground', 'assets/platformBlanca.png');
@@ -398,7 +462,7 @@
 
     //Colisiones de las barras
     //this.physics.add.collider(stars, barras); // Colision
-    //this.physics.add.collider(sombra, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
+    this.physics.add.collider(sombra, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
 	  //this.physics.add.collider(stars, barras2); // Colision
     //this.physics.add.collider(sombra, barras2, hitBarra, null, this); // Para la interseccion  entre barra y player
 
@@ -525,9 +589,10 @@
   function onEvent ()
   {
     graphics.visible=false;
-    lanzarNota(escena);
-    timedEvent.reset({ delay: Phaser.Math.Between(11500,18000), callback: onEvent, callbackScope: this, repeat: 1});
-    //var timerNota = escena.time.addEvent({ delay: 70000, callback: lanzarNota(escena), callbackScope: this });
+    if(numeroNota <= cantidadNotas){
+      lanzarNota(escena);
+      timedEvent.reset({ delay: Phaser.Math.Between(11500,18000), callback: onEvent, callbackScope: this, repeat: 1});
+    }
   }
 
 
@@ -549,21 +614,23 @@
   function lanzarNota(scope){
     var cuadrante = Math.floor(Math.random() * 6) + 1;
     nubeNota(scope,cuadrantes[cuadrante].anchoCuadInicio,cuadrantes[cuadrante].anchoCuadFin,cuadrantes[cuadrante].altoCuadInicio,cuadrantes[cuadrante].altoCuadFin);
-
   }
 
   function hitBarra (player, barras)
   {
     //Escondemos el circulo
     graphics.visible = false;
-
+    barras.destroy();
+    barras2.destroy();
+    player.destroy();
+    numeroNota=cantidadNotas;
     this.physics.pause();
-    tweenBarra1.stop();
-    tweenBarraS.stop();
-    tweenBarraS1.stop();
-    tweenBarra2.stop();
-    tweenBarraS2.stop();
-    tweenBarraS3.stop();
+    // tweenBarra1.stop();
+    // tweenBarraS.stop();
+    // tweenBarraS1.stop();
+    // tweenBarra2.stop();
+    // tweenBarraS2.stop();
+    // tweenBarraS3.stop();
 
     //sombra.setTint(0xff0f0f);
 
@@ -868,7 +935,7 @@ function nubeNota(scope,x0,x1,y0,y1){
      }
      return todos;
   };
-
+}
 </script>
 
 </body>
