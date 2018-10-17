@@ -65,11 +65,10 @@
   var boids = [];
   var elementosResizeables;
   var game = new Phaser.Game(config);
-  var ancho = game.config.width;
-  var alto = game.config.height;
+  var ancho = game.config.width, alto = game.config.height;
   var cuadrantes,curve,graphics;
   var escena;
-  var cantidadNotas, duracion, markers,numeroNota;
+  var fx,cantidadNotas, duracion, markers,numeroNota;
   var circulo;
   window.focus();
 
@@ -94,6 +93,7 @@
     //Cargamos la cancion y su duracion en segundos
     this.load.audio('sfx', [
        'assets/EscaleraAlCielo.ogg',
+       'assets/EscaleraAlCielo.mp3',
      ], {
        instances: 1
     });
@@ -104,11 +104,12 @@
     duracion = largoCancion/cantidadNotas;
     inicio=1;
     markers = [];
-    for(var i = 1; i <= cantidadNotas; i++){
-         markers[i] =   { name: i.toString(), start: inicio, duration: duracion, config: {} }
+    for(numeroNota = 1; numeroNota <= cantidadNotas; numeroNota++){
+         markers.push({ name: numeroNota.toString(), start: inicio, duration: duracion, config: {seek: inicio} });
          inicio += inicio+duracion;
 
     };
+    numeroNota = 1;
 
 
     var elementosACargar = ["Creando el Universo","Definiendo las estrellas","Alineando Planetas","Inventando excusas","Descansando", "Expandiendo el infinito", "Estableciendo aletoreidad y libre albedrío"]
@@ -188,6 +189,14 @@
 
   function create ()
   {
+    //Cargamos la musica
+    fx = this.sound.add('sfx');
+    for (var i=0; i < markers.length; i++)
+    {
+        var marker = markers[i];
+        fx.addMarker(marker);
+    }
+
     //Definimos los cuadrantes con el tamaño del juegos
     cuadrantes = definirCuadrantes();
     //Auto-resize para los juegos
@@ -528,7 +537,11 @@
   }
   function collectStar2 (player, star)
   {
-    escena.sound.play('sfx', markers[numeroNota]);
+    if (fx.isPlaying)
+    {
+      fx.pause();
+    }
+    fx.play(markers[numeroNota]);
     numeroNota += 1;
     star.visible = false;
     star.destroy();
@@ -789,7 +802,8 @@ function definirCuadrantes(){
 //graphics,curve,lx,ly,scope
 function lineas(scope,cx,cy){
     var epx,epy;
-    epx=Math.floor(Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+cuadrantes[1].anchoCuadInicio);
+    //epx=Math.floor(Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+cuadrantes[1].anchoCuadInicio);
+    epx=Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+(cuadrantes[1].anchoCuadInicio - cuadrantes[1].anchoCuadInicio*0.20);
     epy=alto + 10;
     var cuadrante = Math.floor(Math.random() * 6) + 1;
     var cp1x,cp1y;
