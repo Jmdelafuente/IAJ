@@ -41,13 +41,10 @@
         render: render
       },
     ]
-    scene: { Juego, MainMenu, SceneC }
+    //scene: { SceneA, SceneB, SceneC }
   };
 
-  var player;
-  var stars;
-  var platforms;
-  var cursors;
+  var player, stars, platforms, cursors;
   var gameOver = false;
   var radius = 90;
   var angle = 0;
@@ -58,12 +55,12 @@
   var tween;
   var fromColors;
   var toColors;
-  // var tweenBarra1;
-  // var tweenBarraS;
-  // var tweenBarraS1;
-  // var tweenBarra2;
-  // var tweenBarraS2;
-  // var tweenBarraS3;
+  var tweenBarra1;
+  var tweenBarraS;
+  var tweenBarraS1;
+  var tweenBarra2;
+  var tweenBarraS2;
+  var tweenBarraS3;
   var boidsAmount = 50;
   var boids = [];
   var elementosResizeables;
@@ -72,8 +69,8 @@
   var alto = game.config.height;
   var cuadrantes,curve,graphics;
   var escena;
-  var cantidadNotas, duracion, markers;
-  var numeroNota;
+  var cantidadNotas, duracion, markers,numeroNota;
+  var circulo;
   window.focus();
 
 
@@ -82,77 +79,12 @@
 //     game.resize(window.innerWidth, window.innerHeight);
 //
 // }, false);
-
-class MainMenu extends Phaser.Scene {
-    constructor() {
-        super({key: "MainMenu"});
-    }
-
-    create() {
-        //this.add.image(640, 320, "background");
-        //var  title = this.add.image(200, 200, "title"); reduce png size
-        var jugarBut = this.add.image(960, 120, "jugarBut").setInteractive();
-        var opcionesBut = this.add.image(960, 180, "opcionesBut").setInteractive();
-        var ayudaBut = this.add.image(960, 240, "ayudaBut").setInteractive();
-        var creditosBut = this.add.image(960, 300, "creditosBut").setInteractive();
-        var sairBut = this.add.image(960, 360, "salirBut").setInteractive();
-
-
-        //Click on title easter egg - to do
-
-        menuNumber = -1;
-
-        jugarBut.on("pointerdown", function (ev) {
-            menuNumber = 0;
-        });
-
-        opcionesBut.on("pointerdown", function (ev) {
-            menuNumber = 1;
-        });
-
-        ayudaBut.on("pointerdown", function (ev) {
-            menuNumber = 2;
-        });
-
-
-        creditosBut.on("pointerdown", function (ev) {
-            menuNumber = 3;
-        });
-
-        salirBut.on("pointerdown", function (ev) {
-            menuNumber = 4;
-        });
-    }
-
-    update() {
-        if(menuNumber===0){
-            this.scene.start("Jugar");
-        }
-        else if (menuNumber===1){
-            this.scene.start("Opciones");
-        }
-        else if (menuNumber===2){
-            this.scene.start("Ayuda");
-        }
-        else if (menuNumber===3){
-            this.scene.start("Creditos");
-        }
-        else if (menuNumber===4){
-            this.scene.start("");
-        }
-    }
-}
-
-class Juego extends Phaser.Scene {
-    constructor() {
-        super({key: "Juego"});
-    }
   function preload ()
   {
     this.load.image('ground', 'assets/platformBlanca.png');
     this.load.image('block', 'assets/grisSimple.png');
     this.load.image('star', 'assets/nota.png');
-    this.load.image('bomb', 'assets/bomb.png');
+    this.load.image('bomb', 'assets/boid.png');
     this.load.spritesheet('dude', 'assets/playerAmarillo.png', { frameWidth: 51, frameHeight: 48 });
     this.load.image('exp1', 'assets/playerAmarilloExplode1.png');
     this.load.image('exp2', 'assets/playerAmarilloExplode2.png');
@@ -163,7 +95,7 @@ class Juego extends Phaser.Scene {
     this.load.audio('sfx', [
        'assets/EscaleraAlCielo.ogg',
      ], {
-       instances: 4
+       instances: 1
     });
     //Duracion en segundos
     largoCancion=468;
@@ -237,7 +169,7 @@ class Juego extends Phaser.Scene {
                 var elemento = elementosACargar[i];
                 elementosACargar = elementosACargar.splice(i, 1);
                 assetText.setText(elemento);
-                console.log(assetText);
+
             });
 
             this.load.on('complete', function () {
@@ -320,15 +252,15 @@ class Juego extends Phaser.Scene {
     //barras = this.physics.add.staticGroup();
     //barras.create(600, 0, 'ground');
 
-    movimientoBarras(this);
+    movimientoBarras(this,600,200);
 
     //Creacion de las barras para el nivel
 
     //Dibujamos el circulo de accion del pj
-    graphics = this.add.graphics({ lineStyle: { width: 2, color: 0xf8ffaa}});
+    circulo = this.add.graphics({ lineStyle: { width: 2, color: 0xf8ffaa}});
     circle = new Phaser.Geom.Circle(originX, originY, radius);
-    graphics.strokeCircleShape(circle);
-    graphics.alpha = 0.3;
+    circulo.strokeCircleShape(circle);
+    circulo.alpha = 0.3;
 
     //Colisiones del PJ
     //player.setBounce(0.2);
@@ -461,10 +393,8 @@ class Juego extends Phaser.Scene {
     //});
 
     //Colisiones de las barras
-    //this.physics.add.collider(stars, barras); // Colision
     this.physics.add.collider(sombra, barras, hitBarra, null, this); // Para la interseccion  entre barra y player
-	  //this.physics.add.collider(stars, barras2); // Colision
-    //this.physics.add.collider(sombra, barras2, hitBarra, null, this); // Para la interseccion  entre barra y player
+	  this.physics.add.collider(sombra, barras2, hitBarra, null, this); // Para la interseccion  entre barra y player
 
 
 
@@ -515,20 +445,14 @@ class Juego extends Phaser.Scene {
     // notasVagas.children.iterate(function (child) {
     //   wander(child);
     // });
-
-    seek(sombra,player);
-    wander(notaVaga);
-
-    if (gameOver)
-    {
-      return;
-    }
-
-
     this.input.mouse.disableContextMenu();
+    if (!gameOver)
+    {
+      seek(sombra,player);
+      wander(notaVaga);
 
 
-        this.input.on('pointermove', function (pointer) {
+    this.input.on('pointermove', function (pointer) {
           sx = pointer.x;
           sy = pointer.y;
           if (pointer.leftButtonDown() && sx >= player.x )
@@ -578,7 +502,7 @@ class Juego extends Phaser.Scene {
 
       sombra.anims.play('turn');
     }
-
+    }
     //magiabarra();
 
 
@@ -591,7 +515,7 @@ class Juego extends Phaser.Scene {
     graphics.visible=false;
     if(numeroNota <= cantidadNotas){
       lanzarNota(escena);
-      timedEvent.reset({ delay: Phaser.Math.Between(11500,18000), callback: onEvent, callbackScope: this, repeat: 1});
+      timedEvent.reset({ delay: Phaser.Math.Between(duracion*3000,4000*duracion), callback: onEvent, callbackScope: this, repeat: 1});
     }
   }
 
@@ -619,23 +543,19 @@ class Juego extends Phaser.Scene {
   function hitBarra (player, barras)
   {
     //Escondemos el circulo
-    graphics.visible = false;
+    circulo.visible = false;
+    //Quitamos los sprites
     barras.destroy();
     barras2.destroy();
-    player.destroy();
+    //Detenemos la generacion de notas
     numeroNota=cantidadNotas;
+    //Pausamos las fisicas
     this.physics.pause();
-    // tweenBarra1.stop();
-    // tweenBarraS.stop();
-    // tweenBarraS1.stop();
-    // tweenBarra2.stop();
-    // tweenBarraS2.stop();
-    // tweenBarraS3.stop();
-
-    //sombra.setTint(0xff0f0f);
-
+    //Animamos el pj
+    player.setTint(0xff0f0f);
     sombra.anims.play('explode');
-
+    player.anims.play('explode');
+    //Avisamos que termino el juego
     gameOver = true;
   }
 
@@ -719,18 +639,18 @@ function magiabarra(){ // Es la misma barra una y otra vez.
 }
 }
 
-function movimientoBarras(scope){
+function movimientoBarras(scope, coor1, coor2){
   //Creacion de las barras para el nivel
-  barras = scope.physics.add.image(600, -9, 'ground'); // Se agrega las barras 600,0 cordenada actual)
-  marker = scope.physics.add.image(600, -9, 'ground').setAlpha(0.7);//se crea una sombra (600,0 cordenada actual)
-  marker1 = scope.physics.add.image(600, -9, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
+  barras = scope.physics.add.image(coor1, -9, 'ground'); // Se agrega las barras 600,0 cordenada actual)
+  marker = scope.physics.add.image(coor1, -9, 'ground').setAlpha(0.7);//se crea una sombra (600,0 cordenada actual)
+  marker1 = scope.physics.add.image(coor1, -9, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
 
   //barras.body.setGravityY(-100);
   //movimiento de la barra (x,y cordenadas futuras)
   tweenBarra1=scope.tweens.add({
     targets: barras,
-    x: 600,
-    y:730,
+    x: coor1,
+    y:alto + 100,
     duration: 6000,
     ease: 'Power2',
     repeat: 2 ,
@@ -742,8 +662,8 @@ function movimientoBarras(scope){
   //movimiento de la sombra (x,y cordenadas futuras)
   tweenBarraS1=scope.tweens.add({
     targets: marker,
-    x: 600,
-    y:730,
+    x: coor1,
+    y:alto + 100,
     duration: 6050,
     ease: 'Power2',
      repeat: 2,
@@ -755,8 +675,8 @@ function movimientoBarras(scope){
   //movimiento de la sombra (x,y cordenadas futuras)
   tweenBarraS2=scope.tweens.add({
       targets: marker1,
-      x: 600,
-      y:730 ,
+      x: coor1,
+      y:alto + 100 ,
       //angle:180,
       repeat: 2,
       duration: 6100,
@@ -766,9 +686,9 @@ function movimientoBarras(scope){
   });
 
 
-  barras2 = scope.physics.add.image(200, -1200, 'ground'); // Se agrega las barras 600,0 cordenada actual)
-  marker2 = scope.physics.add.image(200, -1200, 'ground').setAlpha(0.7);//se crea una sombra (600,0 cordenada actual)
-  marker3 = scope.physics.add.image(200, -1200, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
+  barras2 = scope.physics.add.image(coor2, -1200, 'ground'); // Se agrega las barras 600,0 cordenada actual)
+  marker2 = scope.physics.add.image(coor2, -1200, 'ground').setAlpha(0.7);//se crea una sombra (600,0 cordenada actual)
+  marker3 = scope.physics.add.image(coor2, -1200, 'ground').setAlpha(0.3);//se crea una sombra (600,0 cordenada actual)
 
   barras2.scaleX=Phaser.Math.FloatBetween(0.5, 0.8)
   marker2.scaleX=barras2.scaleX
@@ -777,8 +697,8 @@ function movimientoBarras(scope){
   //movimiento de la barra (x,y cordenadas futuras)
   tweenBarra2= scope.tweens.add({
     targets: barras2,
-    x: 200,
-    y:730,
+    x: coor2,
+    y:alto + 100,
     duration: 6700,
     ease: 'Power2',
     repeat: 2,
@@ -790,8 +710,8 @@ function movimientoBarras(scope){
   //movimiento de la sombra (x,y cordenadas futuras)
   tweenBarraS2= scope.tweens.add({
     targets: marker2,
-    x: 200,
-    y:730,
+    x: coor2,
+    y:alto + 100,
     duration: 6750,
     ease: 'Power2',
     repeat: 2,
@@ -803,8 +723,8 @@ function movimientoBarras(scope){
   //movimiento de la sombra (x,y cordenadas futuras)
   tweenBarraS3= scope.tweens.add({
       targets: marker3,
-      x: 200,
-      y:730 ,
+      x: coor2,
+      y:alto + 100 ,
       //angle:180,
       duration: 6800,
       repeatDelay: 100,
@@ -935,7 +855,7 @@ function nubeNota(scope,x0,x1,y0,y1){
      }
      return todos;
   };
-}
+
 </script>
 
 </body>
