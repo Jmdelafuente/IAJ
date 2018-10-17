@@ -89,11 +89,13 @@
     this.load.image('exp3', 'assets/playerAmarilloExplode3.png');
     this.load.image('exp4', 'assets/playerAmarilloExplode4.png');
 
+    var elementosACargar = ["Creando el Universo","Definiendo las estrellas","Alineando Planetas","Inventando excusas","Descansando", "Inventando el infinito", "Estableciendo aletoreidad y libre albedrío"]
     //Animacion de carga
     var progressBar = this.add.graphics();
             var progressBox = this.add.graphics();
             progressBox.fillStyle(0x222222, 0.8);
             progressBox.fillRect(240, 270, 320, 50);
+
 
             var width = this.cameras.main.width;
             var height = this.cameras.main.height;
@@ -139,7 +141,11 @@
             });
 
             this.load.on('fileprogress', function (file) {
-                assetText.setText('Creando los ' + file.key);
+                //assetText.setText('Creando los ' + file.key);
+                var i = Math.floor(Math.random() * elementosACargar.length);
+                var elemento = elementosACargar[i];
+                elementosACargar = elementosACargar.splice(i, 1);
+                assetText.setText(elemento);
             });
 
             this.load.on('complete', function () {
@@ -162,11 +168,10 @@
     cuadrantes = definirCuadrantes();
     //Auto-resize para los juegos
     //this.events.on('resize', resize, this);
-    //Seteamos timer para la nueva nota
+    //Seteamos timer y contexto para la nueva nota
     escena = this;
     lanzarNota(escena);
     timedEvent = escena.time.addEvent({ delay: 9000, callback: onEvent, callbackScope: this});
-    //var timerNota = escena.time.addEvent({ delay: 70000, callback: lanzarNota(escena), callbackScope: this });
 
     //Empieza codigo de fondo
     //definir cantidad de figuras para el fondo
