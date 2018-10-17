@@ -68,7 +68,6 @@
   var ancho = game.config.width;
   var alto = game.config.height;
   var cuadrantes,curve,graphics;
-  var timerNota;
   var escena;
   window.focus();
 
@@ -163,10 +162,12 @@
     cuadrantes = definirCuadrantes();
     //Auto-resize para los juegos
     //this.events.on('resize', resize, this);
-
-    //Creacion de una nota
+    //Seteamos timer para la nueva nota
     escena = this;
     lanzarNota(escena);
+    timedEvent = escena.time.addEvent({ delay: 9000, callback: onEvent, callbackScope: this});
+    //var timerNota = escena.time.addEvent({ delay: 70000, callback: lanzarNota(escena), callbackScope: this });
+
     //Empieza codigo de fondo
     //definir cantidad de figuras para el fondo
     var blocks = this.add.group({ key: 'block', repeat: 107, setScale: { x: 0, y: 0 } });
@@ -487,6 +488,17 @@
 
   }
 
+
+  function onEvent ()
+  {
+    graphics.visible=false;
+    lanzarNota(escena);
+    timedEvent.reset({ delay: Phaser.Math.Between(11500,18000), callback: onEvent, callbackScope: this, repeat: 1});
+    //var timerNota = escena.time.addEvent({ delay: 70000, callback: lanzarNota(escena), callbackScope: this });
+  }
+
+
+
   function collectStar (player, star)
   {
     star.disableBody(true, true);
@@ -497,7 +509,6 @@
     star.visible = false;
     star.destroy();
     graphics.visible=false;
-    timerNota = this.time.addEvent({ delay: 10000, callback: lanzarNota(escena), callbackScope: this });
   }
 
   function lanzarNota(scope){
