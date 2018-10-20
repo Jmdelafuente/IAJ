@@ -256,10 +256,7 @@
     player = this.physics.add.sprite(100, 450, 'dude');
     sombra = this.physics.add.sprite(100, 450, 'dude');
     notaVaga = this.physics.add.sprite(400,300,'star');
-
-    // Creacion de las Barras
-    //barras = this.physics.add.staticGroup();
-    //barras.create(600, 0, 'ground');
+    notaVaga.setTint(0xff0f0f);
 
     movimientoBarras(this,600,200);
 
@@ -524,7 +521,7 @@
     graphics.visible=false;
     if(numeroNota <= cantidadNotas){
       lanzarNota(escena);
-      timedEvent.reset({ delay: Phaser.Math.Between(duracion*3000,4000*duracion), callback: onEvent, callbackScope: this, repeat: 1});
+      timedEvent.reset({ delay: Phaser.Math.Between(duracion*2800,3500*duracion), callback: onEvent, callbackScope: this, repeat: 1});
     }
   }
 
@@ -575,7 +572,7 @@
   function render () {
 
     //debug helper
-    game.debug.spriteInfo(barra,32,32);
+    //game.debug.spriteInfo(barra,32,32);
 
   }
 
@@ -803,8 +800,8 @@ function definirCuadrantes(){
 function lineas(scope,cx,cy){
     var epx,epy;
     //epx=Math.floor(Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+cuadrantes[1].anchoCuadInicio);
-    epx=Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+(cuadrantes[1].anchoCuadInicio - cuadrantes[1].anchoCuadInicio*0.20);
-    epy=alto + 10;
+    epx=Math.random()*(cuadrantes[1].anchoCuadFin-cuadrantes[1].anchoCuadInicio)+(cuadrantes[1].anchoCuadInicio - cuadrantes[1].anchoCuadInicio*0.15);
+    epy=alto - 100;
     var cuadrante = Math.floor(Math.random() * 6) + 1;
     var cp1x,cp1y;
     cp1x = Math.floor(Math.random()*(cuadrantes[cuadrante].anchoCuadFin-cuadrantes[cuadrante].anchoCuadInicio)+cuadrantes[cuadrante].anchoCuadInicio);
